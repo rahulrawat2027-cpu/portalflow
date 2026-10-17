@@ -1,0 +1,69 @@
+{
+  "status": "complete",
+  "verdict": "Ready to merge",
+  "scope": {
+    "base": "3589ff2d0b2e4a959f43d5c31d4b1bfe754b4ccc",
+    "branch": "pricing-review",
+    "head_sha": "3589ff2d0b2e4a959f43d5c31d4b1bfe754b4ccc",
+    "pr_url": null,
+    "files_changed": 8
+  },
+  "intent": "Add a clearly labeled proposed India launch pricing preview: INR999/month or INR9990/year upfront (INR832.50/month equivalent and INR1998 annual saving), optional INR499 first monthly period then INR999 with no annual stacking. Existing beta remains free with no expiry; proposed14-day no-card trial and all payment functionality are inactive. Public and in-workspace views must not read, mutate or expose workspace/billing data.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "testing",
+    "julik-frontend-races",
+    "adversarial"
+  ],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": null,
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [],
+  "testing_gaps": [],
+  "coverage": {
+    "scope_mode": "local-aligned",
+    "comparison": "Genuine before-state baseline 3589ff2 against staged pricing implementation; canonical unborn repository not used for diff.",
+    "roster": "full risk-selected roster; helper lite_eligible=false (6 uncounted files)",
+    "completed_reviewers": [
+      "correctness",
+      "testing",
+      "julik-frontend-races",
+      "adversarial"
+    ],
+    "failed_reviewers": [],
+    "project_standards": "not run: successful empty standards-path search",
+    "cross_model_pass": "not run: only same-family Codex CLI installed; no different-provider route available",
+    "adversarial_coverage": "completed local fallback",
+    "validator_batch": "not needed: no retained primary or actionable findings",
+    "suppressed_by_confidence": {},
+    "malformed_findings": 0,
+    "malformed_returns": 0,
+    "mode_aware_demotions": 0,
+    "settlement_suppression": "not evaluated: no plan discovered",
+    "verification": [
+      "Reviewer testing pass ran five pricing unit tests successfully.",
+      "Caller reported 55 full Node tests and original workflow/reliability checks passed.",
+      "Caller reported real browser public/in-app theme/mobile/no-data-mutation checks passed after final simplification.",
+      "Caller reported actual running-server pricing.html/js/css returned HTTP200.",
+      "Orchestrator reopened official ManyRequests, SuiteDash, Plutio and Assembly pricing pages; displayed pricing/trial examples supported."
+    ],
+    "limits": [
+      "Authenticated shared-server agency pricing navigation and client navigation exclusion were inspected in source, not independently browser-tested in this review.",
+      "Browser scripts are separate from npm test and require documented local Playwright/Chrome paths.",
+      "Final release archives must be regenerated after this report; archive inclusion was inspected through generic dist enumeration, not tested on the final as-yet-unbuilt archive."
+    ],
+    "advisory_reconciliation": [
+      "Separate browser workflow is documented and caller executed it; absence from npm test is a coverage limit, not a consequential defect in this pricing change.",
+      "Generic packaging includes every dist file; no introduced missing-file path found. Final archive check belongs to release verification.",
+      "Unavailable cross-model and lexical reference search are coverage descriptions, not product residual risks."
+    ]
+  },
+  "artifact_path": "/tmp/compound-engineering-501/ce-code-review/pricing-20261016-review",
+  "run_id": "pricing-20261016-review"
+}

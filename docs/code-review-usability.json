@@ -1,0 +1,65 @@
+{
+  "status": "complete",
+  "verdict": "Ready to merge",
+  "scope": {
+    "base": "271b7b1c7a52c06fe6f5b72f2015f6c651e79ad0",
+    "branch": "usability-review",
+    "head_sha": "271b7b1c7a52c06fe6f5b72f2015f6c651e79ad0",
+    "pr_url": null,
+    "files_changed": 4
+  },
+  "intent": "Improve agency navigation, first-client onboarding, quick creation, mobile navigation and keyboard search while preserving existing account and client boundaries.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "testing",
+    "maintainability",
+    "security",
+    "julik-frontend-races",
+    "adversarial"
+  ],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": null,
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [],
+  "testing_gaps": [
+    "The browser test opens then cancels the first-client form and seeds a client through the API. It never verifies the user path that saves the first client and enables New project, then saves a project and enables New invoice in the quick-create menu (tests/browser-usability.cjs:14-18; dist/usability.js:24-25)."
+  ],
+  "coverage": {
+    "scope_mode": "local-aligned",
+    "review_tree": "/private/tmp/portalflow-usability-review",
+    "read_only": true,
+    "project_standards": "not run: no applicable standards files",
+    "cross_model": "not run: only same-family Codex CLI installed; local adversarial fallback completed",
+    "lite_roster": false,
+    "scope_helper_uncounted_files": 3,
+    "validator": {
+      "verdicts": [
+        {
+          "#": 1,
+          "validated": false,
+          "reason": "All 17 current workspace navigation entries appear exactly once in the grouping catalog, and the single-button client navigation bypasses regrouping; the reported disappearance depends on a hypothetical future page and does not demonstrate a present bug or sufficient maintenance benefit to justify the proposed refactor."
+        }
+      ]
+    },
+    "validator_dropped_findings": 1,
+    "malformed_returns": 0,
+    "failed_reviewers": [],
+    "suppressed_by_confidence": {},
+    "settlement_suppression": "not evaluated: no discovered plan",
+    "host_followup": "Host self-review separately requested targeted verification of Escape focus restoration and modal interaction with an already open mobile menu. This receipt does not clear that additional follow-up.",
+    "reviewed_sha256": {
+      "dist/index.html": "eca42a97288dc69ecf4e6a74cdb7f63b0812f2a4bdabd064ed166ebda360cd7b",
+      "dist/usability.js": "eb25bb0eea95473ca29cf015e1529e2758331930300939417cac520f676d1390",
+      "dist/workspace.css": "94cc45db583816533391b28896afcfa8ff46b46c894ffd639940f96476a85c37",
+      "tests/browser-usability.cjs": "789a3b63e960692e4fff2d2dcc3647a2e85e2e71d4bf563551a49085993407c1"
+    }
+  },
+  "artifact_path": "/private/tmp/compound-engineering-501/ce-code-review/20261016-193304-usability",
+  "run_id": "20261016-193304-usability"
+}

@@ -1,0 +1,15 @@
+{
+  "product": "PortalFlow",
+  "release": "deployment-draft-1",
+  "date": "2026-10-14",
+  "mode": "browser-local-demo",
+  "published": false,
+  "files": {
+    "dist/index.html": "d2517047a3cf5618943ee62bb0b2db8a0ffdc3e097284e21a6971a064468b0e1",
+    "docs/PROJECT-PLAN.md": "83c562d310c83715a5e21eec4359f34342eab52a73104ba62756c36798953148",
+    "docs/COUNCIL.md": "f21491b0d2ca71ae50a965f77b36c52d49684761686bcd4c05a39f42922e4094",
+    "tests/workflow.cjs": "0a63084fb29f6291c720281c290659d642a9825911ecdd1ca46b528d16686cde",
+    "tests/reliability.cjs": "9d1d851b6aae4b8543233e81a223d11f2dd6e284ae2f1cb84de859518bf7dd32",
+    "tests/browser.cjs": "393ae3b9e95ce908234bee1e61d261a732f617e09913040515d1313ee192d37f"
+  }
+}

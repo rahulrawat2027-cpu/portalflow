@@ -1,0 +1,181 @@
+{
+  "status": "complete",
+  "verdict": "Ready with fixes",
+  "scope": {
+    "base": "47056a2e9d3895f1ee3dec6ff1a44a5b6d47bf1a",
+    "branch": "customer-review",
+    "head_sha": "47056a2e9d3895f1ee3dec6ff1a44a5b6d47bf1a",
+    "pr_url": null,
+    "files_changed": 15
+  },
+  "intent": "Improve customer usability through computed agency setup and next actions, scoped client review queues/current files, dirty-dialog protection, clear filters and contextual manual invitations. Preserve authorization, immutable decisions and session/revision safety.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "security",
+    "testing",
+    "maintainability",
+    "reliability",
+    "adversarial",
+    "julik-frontend-races"
+  ],
+  "findings": [
+    {
+      "#": 1,
+      "autofix_class": "manual",
+      "confidence": 100,
+      "file": "dist/customer-experience.js",
+      "first_evidence": "dist/customer-experience.js:18 -- function guidance(){const data=PF.db,progress=setupProgress(data),project=data.projects.find(p=>!PF.w.projectMeta[p.id]?.archived),rows=nextActions(data);",
+      "independent_reviewers": [
+        "correctness",
+        "adversarial"
+      ],
+      "line": 18,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "correctness",
+        "adversarial"
+      ],
+      "severity": "P2",
+      "suggested_fix": "When work exists but no decision has been received, derive the setup invitation target from an active project that has a latest pending deliverable, rather than the first active project. If no eligible pending work exists, offer an appropriate project/work action instead of an unrelated invitation. Add a regression with an earlier empty project for client A and pending work in a later project for client B, asserting the setup invitation preselects B.",
+      "title": "First-review invitation targets a client without pending work",
+      "why_it_matters": "If an agency creates an empty project for client A before submitting its first work for client B, the first-review guide shows 3 of 4 steps complete but its invitation button selects client A. Following that prominent setup action sends the agency toward inviting a client with nothing to review, rather than collecting the outstanding first decision. The progress calculation searches all linked projects, while the invitation target independently uses the first active project; deriving the target from the actual pending review work keeps the action consistent with the completed step.",
+      "evidence": [
+        "dist/customer-experience.js:18 -- function guidance(){const data=PF.db,progress=setupProgress(data),project=data.projects.find(p=>!PF.w.projectMeta[p.id]?.archived),rows=nextActions(data);",
+        "dist/customer-experience.js:18 -- !progress[3]&&project?inviteButton(project.clientId):''",
+        "dist/customer-experience.js:7 -- const projects=data.projects.filter(p=>data.clients.some(c=>c.id===p.clientId)),work=data.deliverables.filter(d=>projects.some(p=>p.id===d.projectId)&&d.versions?.length);",
+        "Read-only Node VM reproduction against the reviewed source: projects=[empty-project/client empty-client, ready-project/client ready-client], with one pending deliverable in ready-project and no approvals, renders 3 of 4 complete and the setup button data-pf-invite-client=empty-client."
+      ]
+    }
+  ],
+  "actionable_findings": [
+    {
+      "#": 1,
+      "autofix_class": "manual",
+      "confidence": 100,
+      "file": "dist/customer-experience.js",
+      "first_evidence": "dist/customer-experience.js:18 -- function guidance(){const data=PF.db,progress=setupProgress(data),project=data.projects.find(p=>!PF.w.projectMeta[p.id]?.archived),rows=nextActions(data);",
+      "independent_reviewers": [
+        "correctness",
+        "adversarial"
+      ],
+      "line": 18,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "correctness",
+        "adversarial"
+      ],
+      "severity": "P2",
+      "suggested_fix": "When work exists but no decision has been received, derive the setup invitation target from an active project that has a latest pending deliverable, rather than the first active project. If no eligible pending work exists, offer an appropriate project/work action instead of an unrelated invitation. Add a regression with an earlier empty project for client A and pending work in a later project for client B, asserting the setup invitation preselects B.",
+      "title": "First-review invitation targets a client without pending work",
+      "why_it_matters": "If an agency creates an empty project for client A before submitting its first work for client B, the first-review guide shows 3 of 4 steps complete but its invitation button selects client A. Following that prominent setup action sends the agency toward inviting a client with nothing to review, rather than collecting the outstanding first decision. The progress calculation searches all linked projects, while the invitation target independently uses the first active project; deriving the target from the actual pending review work keeps the action consistent with the completed step.",
+      "evidence": [
+        "dist/customer-experience.js:18 -- function guidance(){const data=PF.db,progress=setupProgress(data),project=data.projects.find(p=>!PF.w.projectMeta[p.id]?.archived),rows=nextActions(data);",
+        "dist/customer-experience.js:18 -- !progress[3]&&project?inviteButton(project.clientId):''",
+        "dist/customer-experience.js:7 -- const projects=data.projects.filter(p=>data.clients.some(c=>c.id===p.clientId)),work=data.deliverables.filter(d=>projects.some(p=>p.id===d.projectId)&&d.versions?.length);",
+        "Read-only Node VM reproduction against the reviewed source: projects=[empty-project/client empty-client, ready-project/client ready-client], with one pending deliverable in ready-project and no approvals, renders 3 of 4 complete and the setup button data-pf-invite-client=empty-client."
+      ]
+    }
+  ],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": {
+    "source": "docs/COUNCIL-FINAL.md",
+    "plan_source": "explicit",
+    "readiness": "narrative scope, no implementation-unit contract",
+    "requirements": [
+      {
+        "requirement": "Role-aware setup and owner next actions from actual records",
+        "status": "partially addressed",
+        "note": "Setup invitation target defect #1 requires correction."
+      },
+      {
+        "requirement": "Client latest-version queue, jump, filters and current snapshots",
+        "status": "met"
+      },
+      {
+        "requirement": "Dirty dialog keep/discard and page-exit warning, no persisted drafts",
+        "status": "met"
+      },
+      {
+        "requirement": "Archive-aware active agency review statistics and inbox",
+        "status": "met"
+      },
+      {
+        "requirement": "Contextual invitation prefill, copy and same-computer limitation",
+        "status": "met"
+      },
+      {
+        "requirement": "Task/request filter reset and empty Files guidance",
+        "status": "met"
+      },
+      {
+        "requirement": "Successful snapshot freshness with explicit manual refresh",
+        "status": "met"
+      }
+    ]
+  },
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "This scope review does not establish production readiness or usability with real customers. Council lenses and local reviewers share the model family.",
+    "Manual refresh remains explicit; this change does not implement live subscriptions, persistent draft recovery or account recovery."
+  ],
+  "testing_gaps": [],
+  "coverage": {
+    "scope_mode": "local-aligned",
+    "docs_root": "docs",
+    "standards": "No applicable CODING_STANDARDS.md, CLAUDE.md or AGENTS.md found in reviewed isolated tree; active project sources-readonly instruction preserved.",
+    "lite_roster": false,
+    "scope_signals": {
+      "exec_lines": 128,
+      "uncounted_files": 10,
+      "lite_eligible": false
+    },
+    "reviewer_reasons": {
+      "correctness": "Core behavior and intended customer flow",
+      "security": "User-supplied identifiers, filenames, role permissions and invitation display",
+      "testing": "New models, draft guard and real shared-account browser harness changes",
+      "maintainability": "New render/card wrapper composition and cross-module policy",
+      "reliability": "Async snapshot, invitation clipboard and session cleanup paths",
+      "adversarial": "Cross-component state/order and persistence interactions",
+      "julik-frontend-races": "Dialog observer, asynchronous forms and render/focus lifecycle"
+    },
+    "cross_model_pass": "not run: no different-family CLI installed; local adversarial fallback completed",
+    "reviewer_failures": [],
+    "validation": {
+      "verdicts": [
+        {
+          "#": 1,
+          "validated": true,
+          "reason": "The setup progress counts work across linked projects, but guidance selects the first active project for its invitation, so an earlier empty project for client A preselects A even when the pending review belongs to client B."
+        }
+      ]
+    },
+    "cross_model_validator_skips": 0,
+    "suppressed_by_confidence": {},
+    "mode_aware_demotions": 0,
+    "quote_gate_demotions": 0,
+    "malformed_returns": 0,
+    "malformed_findings": 0,
+    "semantic_merges": 1,
+    "source_claim_rejections": [
+      {
+        "reviewer": "testing",
+        "claim": "Archive count test misses dashboard visual",
+        "reason": "Unreachable legacy index dashboard visual: workspace.js:83 renders api.views.dashboard.render(), so the alleged conflicting adjacent visual is absent from current workspace. No false-positive suggestion preserved as residual risk."
+      }
+    ],
+    "tests_run_by_review": "30 targeted customer-experience, form-guard and backend-client tests passed in frozen review snapshot. Host reports 69 broader tests, workflow/reliability and real browser council/shared/usability/pricing passed.",
+    "untracked_exclusions": [],
+    "review_snapshot": "/private/tmp/portalflow-customer-review",
+    "post_review_fixes": "Not applied in this report-only review. Caller owns changes and regression verification."
+  },
+  "artifact_path": "/private/tmp/compound-engineering-501/ce-code-review/council-20261016-final",
+  "run_id": "council-20261016-final"
+}

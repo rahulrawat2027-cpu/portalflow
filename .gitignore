@@ -1,0 +1,12 @@
+.portalflow-data/
+node_modules/
+.env
+.env.*
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+*.zip
+__pycache__/
+*.pyc
+.DS_Store

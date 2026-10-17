@@ -1,0 +1,13 @@
+{
+  "name": "portalflow",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Client approval workspace with static demo and SQLite shared-account server",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node server/server.cjs",
+    "test": "node tests/workflow.cjs && node tests/reliability.cjs && node --test tests/operations.cjs tests/commerce.cjs tests/proofing.cjs tests/backend-client.cjs tests/server.cjs tests/backups.cjs tests/pricing.cjs tests/form-guard.cjs tests/customer-experience.cjs"
+  }
+}

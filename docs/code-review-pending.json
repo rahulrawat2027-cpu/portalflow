@@ -1,0 +1,22 @@
+{
+  "status": "failed",
+  "reason": "Compound Engineering ce-code-review could not resolve a valid comparison base because this repository has an unborn HEAD; its scope contract requires stopping before reviewer dispatch.",
+  "scope": {
+    "base": null,
+    "branch": "portalflow-draft",
+    "head_sha": null,
+    "pr_url": null,
+    "provided_file_scope": ["server/backups.cjs", "server/server.cjs:backup integration", "dist/proofing.js:bounded text comparison", "dist/backend.js:backup settings paragraph", "tests/backups.cjs", "tests/proofing.cjs:comparison coverage", "tests/browser-pending.cjs", "docs/BACKUPS.md"]
+  },
+  "reviewers": [],
+  "findings": [],
+  "actionable_findings": [],
+  "coverage": {
+    "pipeline_complete": false,
+    "reviewer_dispatch_performed": false,
+    "independent_manual_source_audit": true,
+    "manual_audit_result": "No actionable defect found in the supplied source scope. This is not a completed Compound Engineering review or merge-readiness verdict.",
+    "manual_audit_limits": ["No independent test execution in this audit", "No reliable Git comparison base", "No cross-model review", "No measured request latency during large-database backup"]
+  },
+  "residual_risks": ["Backups and integrity checks run synchronously and may delay requests as the database grows; this is disclosed in docs/BACKUPS.md."]
+}

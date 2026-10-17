@@ -1,0 +1,64 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+let seq=0, form, db={clients:[{id:'c1',name:'One'},{id:'c2',name:'Two'}],projects:[{id:'p1',name:'Brand',clientId:'c1'}],requests:[{id:'r1',clientId:'c1',title:'<script>x</script>',note:'Hello',createdAt:'2026-01-01'}],workspace:{tasks:[],requestMeta:{},messages:[],onboarding:[]}};
+const escape=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const PF={get db(){return db},get w(){return db.workspace},e:escape,id:()=>`id${++seq}`,now:()=>new Date().toISOString(),date:x=>x||'No date',button:(t,a,id='')=>`<button data-action="${a}" data-id="${escape(id)}">${t}</button>`,field:()=>'',area:()=>'',select:()=>'',projectOptions:()=>db.projects.map(p=>[p.id,p.name]),clientOptions:()=>db.clients.map(c=>[c.id,c.name]),project:id=>db.projects.find(p=>p.id===id),client:id=>db.clients.find(c=>c.id===id),form:(t,f,fn)=>form=fn,change:fn=>{fn();PF.validators.forEach(v=>v(db.workspace,db));return true},render:()=>{},toast:()=>{},log:()=>{},empty:x=>x,heading:x=>x,views:{},actions:{},validators:[],projectSections:[],clientSections:[],onChange:[]};
+vm.runInNewContext(fs.readFileSync(__dirname+'/../dist/operations.js','utf8'),{window:{PF}});
+function click(a,id='',extra={}){assert.ok(PF.actions[a],a);PF.actions[a]({dataset:{id,...extra}})}
+function validate(){PF.validators.forEach(v=>v(db.workspace,db))}
+assert.deepEqual(Object.keys(PF.views).sort(),['messages','requests','tasks']);
+click('pf-add-task','p1');form({title:'Build',projectId:'p1',status:'todo',assignee:'A',due:'2026-11-06',priority:'high',checklist:'Brief\nReview'});
+assert.equal(db.workspace.tasks.length,1);assert.equal(db.workspace.tasks[0].checklist.length,2);validate();
+let task=db.workspace.tasks[0];click('pf-toggle-check',task.id,{item:task.checklist[0].id});assert.equal(task.checklist[0].done,true);
+click('pf-edit-task',task.id);form({title:'Build edited',projectId:'p1',status:'doing',assignee:'B',due:'',priority:'normal',checklist:'Brief\nReview\nShip'});assert.equal(task.checklist[0].done,true);assert.equal(task.status,'doing');
+click('pf-edit-request','r1');form({projectId:'p1',status:'review',priority:'high',assignee:'B',due:''});assert.equal(db.workspace.requestMeta.r1.status,'review');
+assert.ok(!PF.views.requests.render().includes('<script>'));
+click('pf-add-message','c1');form({body:'<img onerror=x>',actor:'Agency'});assert.equal(db.workspace.messages[0].clientId,'c1');
+click('pf-add-onboarding','c1');form({title:'Share brand files'});click('pf-toggle-onboarding',db.workspace.onboarding[0].id,{client:'c1'});assert.equal(db.workspace.onboarding[0].done,true);
+assert.ok(!PF.clientSections[0](db.clients[1]).includes('Share brand files'));assert.ok(!PF.clientSections[0](db.clients[0]).includes('<img onerror=x>'));
+const good=JSON.stringify(db);db.workspace.tasks[0].priority='bad';assert.throws(validate);db=JSON.parse(good);
+db.workspace.requestMeta.r1.projectId='missing';assert.throws(validate);db=JSON.parse(good);
+db.workspace.messages[0].actor='Customer';assert.throws(validate);db=JSON.parse(good);
+db.workspace.onboarding[0].done='yes';assert.throws(validate);db=JSON.parse(good);
+click('pf-add-message','c1');assert.throws(()=>form({actor:'Agency',body:' '}));
+click('pf-edit-request','r1');db.projects.push({id:'p2',name:'Other',clientId:'c2'});assert.throws(()=>form({projectId:'p2',status:'new',priority:'normal',assignee:'',due:''}));
+console.log('PASS: operations views, task create/edit/checklist retention, request workflow, escaped scoped client messages, onboarding, malformed data rejection.');
+function change(dataset,value){PF.onChange.forEach(fn=>fn({type:'change',target:{dataset,value}}))}
+change({pfMove:'tasks',id:db.workspace.tasks[0].id},'done');assert.equal(db.workspace.tasks[0].status,'done');
+change({pfMove:'requests',id:'r1'},'done');assert.equal(db.workspace.requestMeta.r1.status,'done');
+change({pfFilter:'tasks',key:'status'},'todo');assert.ok(PF.views.tasks.render().includes('No matching tasks'));change({pfFilter:'tasks',key:'status'},'');
+change({pfFilter:'requests',key:'mode'},'board');assert.ok(PF.views.requests.render().includes('pf-kanban'));
+assert.throws(()=>click('pf-toggle-onboarding',db.workspace.onboarding[0].id,{client:'c2'}));
+const snapshot=JSON.stringify(db.workspace);PF.views.tasks.render();PF.views.requests.render();PF.views.messages.render();assert.equal(JSON.stringify(db.workspace),snapshot,'render does not persist or mutate records');
+db.workspace.tasks[0].due='2026-02-30';assert.throws(validate);db.workspace.tasks[0].due='';
+db.workspace.tasks[0].checklist.push({...db.workspace.tasks[0].checklist[0]});assert.throws(validate);db.workspace.tasks[0].checklist.pop();validate();
+console.log('PASS: dropdown moves, filters, board rendering, cross-client action rejection, pure rendering, date and duplicate checklist validation.');
+const retryTaskId=db.workspace.tasks[0].id;click('pf-edit-task',retryTaskId);db=JSON.parse(JSON.stringify(db));form({title:'Retry task',projectId:'p1',status:'doing',priority:'low',assignee:'Retry',due:'',checklist:'Brief'});assert.equal(db.workspace.tasks[0].title,'Retry task');
+click('pf-edit-request','r1');db=JSON.parse(JSON.stringify(db));form({projectId:'p1',status:'progress',priority:'low',assignee:'Retry',due:''});assert.equal(db.workspace.requestMeta.r1.assignee,'Retry');
+click('pf-add-message','c1');db=JSON.parse(JSON.stringify(db));form({body:'Retry message',actor:'Client preview'});assert.equal(db.workspace.messages.at(-1).body,'Retry message');validate();
+console.log('PASS: open forms resolve current task/request/message data after database replacement (rollback retry).');
+const filterSnapshot=JSON.stringify(db);let filterWrites=0,filterLogs=0;
+const originalChange=PF.change,originalLog=PF.log;
+PF.change=fn=>{filterWrites++;return originalChange(fn)};PF.log=()=>{filterLogs++};
+for(const kind of ['tasks','requests']){
+  change({pfFilter:kind,key:'mode'},'board');
+  for(const [key,value] of Object.entries({status:'done',priority:'high',project:'p2',assignee:'Nobody',...(kind==='requests'?{client:'c2'}:{})}))change({pfFilter:kind,key},value);
+  let html=PF.views[kind].render();
+  assert.ok(html.includes(`0 of 1 ${kind}`),'filtered count explains the result');
+  assert.ok(html.includes('Clear filters'));
+  assert.ok(html.includes(`No matching ${kind}. Clear filters to see all ${kind}.`));
+  click('pf-clear-filters',kind);
+  html=PF.views[kind].render();
+  assert.ok(html.includes(`1 of 1 ${kind}`),'all matching records return');
+  assert.ok(html.includes('pf-kanban'),'clearing filters preserves Kanban');
+  assert.ok(!html.includes('Clear filters'),'view choice alone is not an active filter');
+  for(const key of ['status','priority','project','assignee',...(kind==='requests'?['client']:[])])assert.match(html,new RegExp(`data-pf-filter="${kind}" data-key="${key}"[^>]*><option value="" selected`),'every filter resets');
+}
+assert.equal(JSON.stringify(db),filterSnapshot,'filtering and clearing do not mutate the database');
+assert.equal(filterWrites,0,'filtering never enters a persistence transaction');assert.equal(filterLogs,0,'filtering never logs an activity');
+PF.change=originalChange;PF.log=originalLog;
+const savedTasks=db.workspace.tasks,savedRequests=db.requests;
+db.workspace.tasks=[];db.requests=[];
+assert.ok(PF.views.tasks.render().includes('No tasks yet. Add a task to plan your work.'));
+assert.ok(PF.views.requests.render().includes('No requests yet. Add a request to track client inputs.'));
+db.workspace.tasks=savedTasks;db.requests=savedRequests;
+console.log('PASS: task/request result counts, all filters cleared without writes, Kanban preserved, and distinct empty states.');
